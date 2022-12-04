@@ -67,190 +67,119 @@ public class Hand {
         this.sndHighestSetCard = sndHighestCard;
     }
 
-    public boolean isRoyalFlush() {
-        String suit = cards.get(0).getSuit();
-        Integer value = cards.get(0).getValue();
-        for(int i = 1; i< cards.size(); i++) {
-            if(!suit.equals(cards.get(i)) || cards.get(i).getValue() != ++value) {
+
+    public boolean setRankArray() {
+        String suit = this.cards.get(0).getSuit();
+        Integer value = this.cards.get(0).getValue();
+        boolean flush = true;
+        boolean straight = true;
+        for(int i=1; i< cards.size(); i++) {
+            if(!suit.equals(cards.get(i).getSuit()) && !straight) {
                 return false;
             }
-            // case for when the straight starts with an Ace
+            else if(!suit.equals(cards.get(i).getSuit()) && straight) {
+                flush = false;
+            }
+            if(cards.get(i).getValue() != ++value && !flush) {
+                return false;
+            }
+            else if(cards.get(i).getValue() != ++value && flush) {
+                straight = false;
+            }
+            // wheel straight flush
             if(i == 3 && cards.get(3).getValue() == 5 && cards.get(3).getSuit().equals(suit) &&
                     cards.get(4).getValue() == 14 && cards.get(4).getSuit().equals(suit)) {
                 setRank(9);
                 setHighestSetCard(5);
                 return true;
             }
-        }
-        setRank(9);
-        setHighestSetCard(cards.get(4).getValue());
-        return true;
-    }
-
-    public boolean isFourOfAKind() {
-        boolean fourOfaKind = false;
-        List<Integer> notMadeCards = new ArrayList<>();
-        for(Integer key: this.numberOfCards.keySet()) {
-            Integer keyValue = this.numberOfCards.get(key);
-            if(keyValue == 4) {
-                fourOfaKind = true;
-                setRank(8);
-                setHighestSetCard(keyValue);
-            }
-            else {
-                notMadeCards.add(key);
-            }
-        }
-        if(fourOfaKind) {
-            setNotMadeCards(notMadeCards);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isFullHouse() {
-        Map<Integer, Integer> map = new HashMap<>();
-        int highestCard = 0;
-        int secondHighestCard = 0;
-        for(Integer key: map.keySet()) {
-            Integer keyValue = map.get(key);
-            if(keyValue == 3) {
-                highestCard = key;
-            }
-            else if(keyValue == 2) {
-                secondHighestCard = 2;
-            }
-        }
-        if(highestCard != 0 && secondHighestCard != 0) {
-            setRank(7);
-            setHighestSetCard(highestCard);
-            setSndHighestCard(secondHighestCard);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isFlush() {
-        String suit = cards.get(0).getSuit();
-        for(int i = 1; i< cards.size(); i++) {
-            if(!suit.equals(cards.get(i))) {
-                return false;
-            }
-        }
-        setRank(6);
-        return true;
-    }
-
-    public boolean isStraight() {
-        Integer value = cards.get(0).getValue();
-        for(int i = 1; i< cards.size(); i++) {
-            if(cards.get(i).getValue() != ++value) {
-                return false;
-            }
-            // case for when the straight starts with an Ace
-            if(i == 3 && cards.get(3).getValue() == 5 && cards.get(4).getValue() == 14) {
+            else if(i == 3 && cards.get(3).getValue() == 5 && cards.get(4).getValue() == 14) {
                 setRank(5);
                 setHighestSetCard(5);
                 return true;
             }
         }
-        setRank(5);
-        setHighestSetCard(cards.get(4).getValue());
+        if(flush && straight) {
+            setRank(9);
+            setHighestSetCard(cards.get(4).getValue());
+            return true;
+        }
+        else if(flush && !straight) {
+            setRank(6);
+            setHighestSetCard(cards.get(4).getValue());
+            return true;
+        }
+        else if(straight && !flush) {
+            setRank(5);
+            setHighestSetCard(cards.get(4).getValue());
+            return true;
+        }
+        else {
+            setNotMadeCards(this.cards.stream().map(Card::getValue).collect(Collectors.toList()));
+            return false;
+        }
+    }
+
+    public boolean setRankMap() {
+        List<Integer> notMadeCards = new ArrayList<>();
+        int pair = 0;
+        int threeOfAKind = 0;
+        for(Integer key: this.numberOfCards.keySet()) {
+            Integer keyValue = this.numberOfCards.get(key);
+            if(keyValue == 4) {
+                setRank(8);
+                setHighestSetCard(keyValue);
+            }
+            else if(keyValue == 3) {
+                if(pair!= 0) {
+                    setRank(7);
+                    setHighestSetCard(key);
+                    setSndHighestCard(pair);
+                }
+                else {
+                    threeOfAKind = key;
+                }
+            }
+            else if(keyValue == 2) {
+                if(threeOfAKind != 0) {
+                    setRank(7);
+                    setHighestSetCard(threeOfAKind);
+                    setSndHighestCard(key);
+                }
+                else if(pair != 0) {
+                    setRank(3);
+                    setHighestSetCard(Math.max(key, pair));
+                    setSndHighestCard(Math.min(key, pair));
+                }
+                else if(pair == 0) {
+                    pair = key;
+                }
+            }
+            else if(keyValue == 1) {
+                notMadeCards.add(key);
+            }
+        }
+        setNotMadeCards(notMadeCards);
+        if(getRank() == 0) {
+            if(pair != 0) {
+                setRank(2);
+                setHighestSetCard(pair);
+            }
+            else if(threeOfAKind != 0) {
+                setRank(4);
+                setHighestSetCard(threeOfAKind);
+            }
+            else {
+                return false;
+            }
+        }
         return true;
     }
 
-    public boolean isThreeOfAKind() {
-        boolean threeOfAKing = false;
-        List<Integer> notMadeCards = new ArrayList<>();
-        for(Integer key: this.numberOfCards.keySet()) {
-            Integer keyValue = this.numberOfCards.get(key);
-            if(keyValue == 3) {
-                threeOfAKing = true;
-                setRank(4);
-                setHighestSetCard(keyValue);
-            }
-            else {
-                notMadeCards.add(key);
-            }
-        }
-        if(threeOfAKing) {
-            setNotMadeCards(notMadeCards);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isTwoPairs() {
-        int numberOfPairs = 0;
-        int highestPairCard = 0;
-        int sndPairCard = 0;
-        List<Integer> notMadeCards = new ArrayList<>();
-        for(Integer key: this.numberOfCards.keySet()) {
-            Integer keyValue = this.numberOfCards.get(key);
-            if(keyValue == 2) {
-                numberOfPairs++;
-                if(key > highestPairCard && sndPairCard == 0) {
-                    highestPairCard = key;
-                }
-                else if(key > highestPairCard && sndPairCard != 0) {
-                    sndPairCard = highestPairCard;
-                    highestPairCard = key;
-                }
-                else if(key < highestPairCard && key > sndPairCard) {
-                    sndPairCard = key;
-                }
-            }
-            else {
-                notMadeCards.add(key);
-            }
-        }
-        if(numberOfPairs == 2) {
-            setRank(3);
-            setHighestSetCard(highestPairCard);
-            setSndHighestCard(sndPairCard);
-            setNotMadeCards(notMadeCards);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isPair() {
-        int pairCard =0;
-        List<Integer> notMadeCards = new ArrayList<>();
-        for(Integer key: this.numberOfCards.keySet()) {
-            Integer keyValue = this.numberOfCards.get(key);
-            if(keyValue == 2) {
-                pairCard = key;
-            }
-            else {
-                notMadeCards.add(key);
-            }
-        }
-        if(pairCard != 0) {
-            setRank(2);
-            setHighestSetCard(pairCard);
-            setNotMadeCards(notMadeCards);
-            return true;
-        }
-        return false;
-    }
     public void setRank() {
-        if(!isRoyalFlush()) {
-            if(!isFourOfAKind()) {
-                if(!isFullHouse()) {
-                    if(!isFlush()) {
-                        if(!isStraight()) {
-                            if(!isThreeOfAKind()) {
-                                if(!isTwoPairs()) {
-                                    if(!isPair()) {
-                                        setNotMadeCards(this.cards.stream().map(Card::getValue).collect(Collectors.toList()));
-                                        setRank(1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        if(!setRankArray()) {
+            if(!setRankMap()) {
+                setRank(1);
             }
         }
     }

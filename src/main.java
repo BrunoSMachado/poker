@@ -10,7 +10,7 @@ public class main {
     public static void main(String[] args) {
         int player1 = 0;
         try {
-            File file = new File("C:\\Users\\bruno\\IdeaProjects\\Poker\\src\\files\\poker.txt");
+            File file = new File("C:\\Users\\bruno\\OneDrive\\Documentos\\git\\poker\\src\\files\\poker.txt");
             BufferedReader br = new BufferedReader(new FileReader(file));
             String st;
             while ((st = br.readLine()) != null) {
@@ -23,7 +23,6 @@ public class main {
                 }
                 List<Card> h1 = cardList.subList(0,5);
                 Collections.sort(h1, (a,b) -> a.getValue() - b.getValue());
-                //h1.stream().forEach(System.out::println);
                 List<Card> h2 = cardList.subList(5,10);
                 Collections.sort(h2, (a,b) -> a.getValue() - b.getValue());
                 Hand hand1 = new Hand(h1);
