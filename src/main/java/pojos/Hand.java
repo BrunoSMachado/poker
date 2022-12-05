@@ -104,12 +104,12 @@ public class Hand {
             setHighestSetCard(cards.get(4).getValue());
             return true;
         }
-        else if(flush && !straight) {
+        else if(flush) {
             setRank(6);
-            setHighestSetCard(cards.get(4).getValue());
+            setNotMadeCards(this.cards.stream().map(Card::getValue).collect(Collectors.toList()));
             return true;
         }
-        else if(straight && !flush) {
+        else if(straight) {
             setRank(5);
             setHighestSetCard(cards.get(4).getValue());
             return true;
@@ -213,7 +213,7 @@ public class Hand {
     }
 
     public Integer compareNotMadeCards(Hand hand2) {
-        for(int i = this.getNotMadeCards().size() -1; i >= 0; i++) {
+        for(int i = this.getNotMadeCards().size() -1; i >= 0; i--) {
             if(this.getNotMadeCards().get(i) > hand2.getNotMadeCards().get(i)) {
                 return 1;
             }
