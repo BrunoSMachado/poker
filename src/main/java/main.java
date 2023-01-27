@@ -10,7 +10,7 @@ public class main {
     public static void main(String[] args) {
         int player1 = 0;
         try {
-            File file = new File("C:\\Users\\bruno\\OneDrive\\Documentos\\git\\poker\\src\\files\\poker.txt");
+            File file = new File("src/main/resources/poker.txt");
             BufferedReader br = new BufferedReader(new FileReader(file));
             String st;
             while ((st = br.readLine()) != null) {

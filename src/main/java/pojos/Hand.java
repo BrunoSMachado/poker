@@ -4,12 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Hand {
-    List<Card> cards;
-    Map<Integer, Integer> numberOfCards;
-    int rank;
-    int highestSetCard;
-    int sndHighestSetCard;
-    List<Integer> notMadeCards;
+    private List<Card> cards;
+    private Map<Integer, Integer> numberOfCards;
+    private int rank;
+    private int highestSetCard;
+    private int sndHighestSetCard;
+    private List<Integer> notMadeCards;
 
     public Hand(List<Card> cards) {
         this.cards = cards;
